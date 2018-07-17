@@ -1,0 +1,24 @@
+#!/usr/bin/env node
+const fs = require('fs');
+const exec = require('child_process').exec
+
+function executeCommand(command){
+	return new Promise((resolve, reject) => {
+		exec(command, (err, stdout) => {
+			if (err) reject(err)
+			resolve(stdout);
+		})
+	})
+}
+
+async function getBranch(){
+	let result = await executeCommand('git branch | findstr "*"');
+	return result.substr(2).trim();
+}
+
+getBranch()
+	.then(branch => {
+		let content = fs.readFileSync(process.argv[2]);
+		content = `${branch} ${content}`;
+		fs.writeFileSync(process.argv[2], content);		
+	})
